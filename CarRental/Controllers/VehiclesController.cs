@@ -33,7 +33,7 @@ namespace CarRental.Controllers
         // GET: Vehicles/[Guid]
         [HttpGet("{id}", Name = "Get")]
         [ProducesResponseType(typeof(Vehicle), 200)]
-        public async Task<ActionResult> Get(Guid id)
+        public async Task<ActionResult> GetVehicleById(Guid id)
         {
             var vehicle = await _vehicleRepository.GetByIdAsync(id);
             if (vehicle == null)
@@ -41,23 +41,36 @@ namespace CarRental.Controllers
             return Ok(vehicle);
         }
 
-        
+
         // POST: Vehicles
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<Vehicle> Post([FromBody] Vehicle newVehicle)
         {
+            return await _vehicleRepository.InsertAsync(newVehicle);
         }
 
         // PUT: Vehicles/[Guid]
         [HttpPut("{id}")]
-        public void Put(Guid id, [FromBody] string value)
+        public async Task<ActionResult> Put(Guid id, [FromBody] Vehicle vehicle)
         {
+            if (id != vehicle.Id)
+            {
+                return BadRequest();
+            }
+            
+            await _vehicleRepository.UpdateAsync(vehicle);
+            return Ok(); 
         }
 
-        // DELETE: ApiWithActions/[Guid]
+        // DELETE: Vehicles/[Guid]
         [HttpDelete("{id}")]
-        public void Delete(Guid id)
+        public async Task<ActionResult> Delete(Guid id)
         {
+            var vehicle = await _vehicleRepository.GetByIdAsync(id);
+            if (vehicle == null)
+                return NotFound();
+            var reuslt = await _vehicleRepository.Delete(id);
+            return Ok(reuslt);
         }
     }
 }

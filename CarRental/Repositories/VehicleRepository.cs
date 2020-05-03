@@ -49,16 +49,36 @@ namespace CarRental.Repositories
             return await _context.Vehicles.SingleOrDefaultAsync(x => x.Id == id);
         }
 
-      
 
-        public Task<bool> UpdateAsync(Vehicle entity)
+
+        public async Task<bool> UpdateAsync(Vehicle vehicle)
         {
-            throw new NotImplementedException();
+            _context.Entry(vehicle).State = EntityState.Modified;
+            try
+            {
+                return (await _context.SaveChangesAsync() > 0 ? true : false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                
+            }
+            return false;
         }
 
-        public Task<bool> Delete(Guid id)
+        public async Task<bool> Delete(Guid id)
         {
-            throw new NotImplementedException();
+            var vehicle = await _context.Vehicles.SingleOrDefaultAsync(x => x.Id == id);
+            if (vehicle == null)
+                return false;
+            _context.Vehicles.Remove(vehicle);
+            try
+            {
+                return (await _context.SaveChangesAsync() > 0 ? true : false);
+            }
+            catch (Exception)
+            {
+            }
+            return false;
         }
     }
 }
